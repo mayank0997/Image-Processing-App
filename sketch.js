@@ -11,12 +11,8 @@ function setup() {
 }
 
 function draw() {
-    push();
-    translate(400, 0);
-    scale(-1, 1);
-    image(capture, w + 20, 20);
-    image(grayscaleFilterBright(capture), 0, 20);
-    pop();
+    image(capture, 20, 20);
+    image(grayscaleFilterBright(capture), w + 40, 20);
 }
 
 function grayscaleFilterBright(img) {
