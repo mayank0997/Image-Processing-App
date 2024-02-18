@@ -33,7 +33,7 @@ function grayscaleFilterBright(img) {
             var g = img.pixels[index + 1];
             var b = img.pixels[index + 2];
 
-            var gray = r * 0.299 + g * 0.587 + b * 0.0114; // LUMA ratios 
+            var gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios 
 
             //multiplying by 1.2 to increase brightness by 20%
             imgOut.pixels[index + 0] = imgOut.pixels[index + 1] = imgOut.pixels[index + 2] = gray * 1.2;
