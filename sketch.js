@@ -128,60 +128,29 @@ function separateChannels(index, r, g, b) {
 
 function imageSegmentation(index, r, g, b) {
     // Apply thresholding based on slider values for each color channel
-    let rThreshold = thresholdSliderRed.value();
-    let gThreshold = thresholdSliderGreen.value();
-    let bThreshold = thresholdSliderBlue.value();
+    var rThreshold = thresholdSliderRed.value();
+    var gThreshold = thresholdSliderGreen.value();
+    var bThreshold = thresholdSliderBlue.value();
 
-    // Segment red channel
-    if (r >= rThreshold)
-        rSegImg.pixels[index] = 255;
-    else
-        rSegImg.pixels[index] = 0;
-    rSegImg.pixels[index + 1] = 0;
-    rSegImg.pixels[index + 2] = 0;
-    rSegImg.pixels[index + 3] = 255; // Alpha
-
-    // Segment green channel
-    gSegImg.pixels[index] = 0;
-    if (g >= gThreshold)
-        gSegImg.pixels[index + 1] = 255;
-    else
-        gSegImg.pixels[index + 1] = 0;
-    gSegImg.pixels[index + 2] = 0;
-    gSegImg.pixels[index + 3] = 255; // Alpha
-
-    // Segment blue channel
-    bSegImg.pixels[index] = 0;
-    bSegImg.pixels[index + 1] = 0;
-    if (b >= bThreshold)
-        bSegImg.pixels[index + 2] = 255;
-    else
-        bSegImg.pixels[index + 2] = 0;
-    bSegImg.pixels[index + 3] = 255; // Alpha
-
-
-    /*
-    var gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
     if (r >= rThreshold) {
-        var gray = r * 0.299;
-        if (gray > 255)
-            gray = 255;
-        rSegImg[index] = rSegImg[index + 1] = rSegImg[index + 2] = gray;
-        rSegImg[index + 3] = 255;
+        rSegImg.pixels[index] = rSegImg.pixels[index + 1] = rSegImg.pixels[index + 2] = r;
+    } else {
+        rSegImg.pixels[index] = rSegImg.pixels[index + 1] = rSegImg.pixels[index + 2] = 0;
     }
+    rSegImg.pixels[index + 3] = 255;
+
     if (g >= gThreshold) {
-        var gray = g * 0.587;
-        if (gray > 255)
-            gray = 255;
-        gSegImg[index] = gSegImg[index + 1] = gSegImg[index + 2] = gray;
-        gSegImg[index + 3] = 255;
+        gSegImg.pixels[index] = gSegImg.pixels[index + 1] = gSegImg.pixels[index + 2] = g;
+    } else {
+        gSegImg.pixels[index] = gSegImg.pixels[index + 1] = gSegImg.pixels[index + 2] = 0;
     }
-    if (b > bThreshold) {
-        var gray = b * 0.114;
-        if (gray > 255)
-            gray = 255;
-        bSegImg[index] = bSegImg[index + 1] = bSegImg[index + 2] = gray;
-        bSegImg[index + 3] = 255;
+    gSegImg.pixels[index + 3] = 255;
+
+    if (b >= bThreshold) {
+        bSegImg.pixels[index] = bSegImg.pixels[index + 1] = bSegImg.pixels[index + 2] = b;
+    } else {
+        bSegImg.pixels[index] = bSegImg.pixels[index + 1] = bSegImg.pixels[index + 2] = 0;
     }
-    */
+    bSegImg.pixels[index + 3] = 255;
+
 }
