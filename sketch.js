@@ -1,36 +1,50 @@
 var capture = null;     //variable to store the capture of the video
 var w = 160;    //width of image
 var h = 120;    //height of image
+var gsImg;
 var rImg, bImg, gImg;
 
 function setup() {
     pixelDensity(1);
     createCanvas(1000, 1000);
+
+    var canvases = document.getElementsByTagName("canvas");
+    if (canvases.length > 0) {
+        canvases[0].getContext('2d', { willReadFrequently: true });
+    }
+
     background(160);
     capture = createCapture(VIDEO);
     capture.size(w, h);
     capture.hide();
+    capture.loadPixels();
+
+    //grayscale image
+    gsImg = createImage(capture.width, capture.height);
+    gsImg.loadPixels();
+
     // Initialize component images to be the same size as the original
     rImg = createImage(capture.width, capture.height);
     gImg = createImage(capture.width, capture.height);
     bImg = createImage(capture.width, capture.height);
+
+    rImg.loadPixels();
+    gImg.loadPixels();
+    bImg.loadPixels();
 }
 
 function draw() {
     image(capture, 20, 20);
+    capture.loadPixels();
     grayscaleFilterBright();
     separateChannels();
 }
 
 function grayscaleFilterBright() {
-    var imgOut = createImage(capture.width, capture.height);
-    imgOut.loadPixels();
-    capture.loadPixels();
+    for (x = 0; x < gsImg.width; x++) {
+        for (y = 0; y < gsImg.height; y++) {
 
-    for (x = 0; x < imgOut.width; x++) {
-        for (y = 0; y < imgOut.height; y++) {
-
-            var index = (x + y * imgOut.width) * 4;
+            var index = (x + y * gsImg.width) * 4;
 
             var r = capture.pixels[index + 0];
             var g = capture.pixels[index + 1];
@@ -44,48 +58,40 @@ function grayscaleFilterBright() {
             else
                 gray = 255;
 
-            imgOut.pixels[index + 0] = imgOut.pixels[index + 1] = imgOut.pixels[index + 2] = gray;
-            imgOut.pixels[index + 3] = 255;
+            gsImg.pixels[index + 0] = gsImg.pixels[index + 1] = gsImg.pixels[index + 2] = gray;
+            gsImg.pixels[index + 3] = 255;     //alpha set to 255
         }
     }
 
-    imgOut.updatePixels();
-    image(imgOut, w + 40, 20);
+    gsImg.updatePixels();
+    image(gsImg, w + 40, 20);
 }
 
 function separateChannels() {
-    capture.loadPixels();
-    rImg.loadPixels();
-    gImg.loadPixels();
-    bImg.loadPixels();
-
-    for (let y = 0; y < capture.height; y++) {
-        for (let x = 0; x < capture.width; x++) {
-            let index = (x + y * capture.width) * 4;
-            let r = capture.pixels[index];
-            let g = capture.pixels[index + 1];
-            let b = capture.pixels[index + 2];
-            let a = capture.pixels[index + 3]; // Alpha channel
-
-            console.log(a);
+    for (var y = 0; y < capture.height; y++) {
+        for (var x = 0; x < capture.width; x++) {
+            var index = (x + y * capture.width) * 4;
+            var r = capture.pixels[index];
+            var g = capture.pixels[index + 1];
+            var b = capture.pixels[index + 2];
 
             // Set red component image pixels
             rImg.pixels[index] = r;
             rImg.pixels[index + 1] = 0;
             rImg.pixels[index + 2] = 0;
-            rImg.pixels[index + 3] = a;
+            rImg.pixels[index + 3] = 255;     //alpha set to 255
 
             // Set green component image pixels
             gImg.pixels[index] = 0;
             gImg.pixels[index + 1] = g;
             gImg.pixels[index + 2] = 0;
-            gImg.pixels[index + 3] = a;
+            gImg.pixels[index + 3] = 255;     //alpha set to 255
 
             // Set blue component image pixels
             bImg.pixels[index] = 0;
             bImg.pixels[index + 1] = 0;
             bImg.pixels[index + 2] = b;
-            bImg.pixels[index + 3] = a;
+            bImg.pixels[index + 3] = 255;     //alpha set to 255
         }
     }
 
