@@ -35,8 +35,14 @@ function grayscaleFilterBright(img) {
 
             var gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios 
 
+            //increasing brightness by 20% but capping pixel intensity to 255
+            if (gray * 1.2 < 255)
+                gray *= 1.2;    //multiplying by 1.2 to increase brightness by 20%
+            else
+                gray = 255;
+
             //multiplying by 1.2 to increase brightness by 20%
-            imgOut.pixels[index + 0] = imgOut.pixels[index + 1] = imgOut.pixels[index + 2] = gray * 1.2;
+            imgOut.pixels[index + 0] = imgOut.pixels[index + 1] = imgOut.pixels[index + 2] = gray;
             imgOut.pixels[index + 3] = 255;
         }
     }
