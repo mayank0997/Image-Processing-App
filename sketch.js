@@ -5,6 +5,11 @@ var gsImg;
 var rImg, bImg, gImg;
 var rSegImg, bSegImg, gSegImg;
 var hsvImg;
+var yCbCrImg;
+
+function preload() {
+    capture = loadImage("leaf.jpg");
+}
 
 function setup() {
     pixelDensity(1);
@@ -16,9 +21,13 @@ function setup() {
     }
 
     background(100);
+    /*
     capture = createCapture(VIDEO);
     capture.size(w, h);
     capture.hide();
+    capture.loadPixels();
+    */
+    capture.resize(w, h);
     capture.loadPixels();
 
     //grayscale image
@@ -51,6 +60,9 @@ function setup() {
     thresholdSliderGreen.position((capture.width) + 45, 2 * h + 60);
     thresholdSliderBlue = createSlider(0, 255, 110);
     thresholdSliderBlue.position(2 * (capture.width) + 65, 2 * h + 60);
+
+    yCbCrImg = createImage(capture.width, capture.height);
+    yCbCrImg.loadPixels();
 }
 
 function draw() {
@@ -58,7 +70,6 @@ function draw() {
     image(capture, 20, 20);
     capture.loadPixels();
 
-    colorMode(HSB, 360, 100, 100); // Set color mode to HSB
     for (let x = 0; x < capture.width; x++) {
         for (let y = 0; y < capture.height; y++) {
             let index = (x + y * gsImg.width) * 4;
@@ -83,6 +94,15 @@ function draw() {
             hsvImg.pixels[index + 1] = s * 255; // Saturation mapped to green
             hsvImg.pixels[index + 2] = v * 255; // Value mapped to blue
             hsvImg.pixels[index + 3] = 255; // Alpha
+
+            // Convert RGB to YCbCr
+            let [yValue, cb, cr] = rgbToYCbCr(r, g, b);
+
+            // Map YCbCr values to RGB channels for visualization
+            yCbCrImg.pixels[index] = yValue; // Y mapped to red channel
+            yCbCrImg.pixels[index + 1] = cb; // Cb mapped to green channel
+            yCbCrImg.pixels[index + 2] = cr; // Cr mapped to blue channel
+            yCbCrImg.pixels[index + 3] = 255; // Alpha
         }
     }
     gsImg.updatePixels();
@@ -92,8 +112,6 @@ function draw() {
     rImg.updatePixels();
     gImg.updatePixels();
     bImg.updatePixels();
-
-    hsvImg.updatePixels();
 
     image(rImg, 20, h + 40); // Red component
     image(gImg, (capture.width) + 40, h + 40); // Green component
@@ -111,8 +129,12 @@ function draw() {
     image(gSegImg, w + 40, 2 * h + 80);
     image(bSegImg, 2 * w + 60, 2 * h + 80);
 
+    hsvImg.updatePixels();
+    yCbCrImg.updatePixels();
+
     image(capture, 20, 3 * h + 100);
     image(hsvImg, w + 40, 3 * h + 100);
+    image(yCbCrImg, 2 * w + 60, 3 * h + 100);
 }
 
 function grayscaleFilterBright(index, r, g, b) {
@@ -208,10 +230,13 @@ function rgbToHsv(r, g, b) {
 
 
 // RGB to YCbCr conversion
+/**
+ * I used the formula provided on wikipedia as it was easier to implement.
+ * https://en.wikipedia.org/wiki/YCbCr
+ */
 function rgbToYCbCr(r, g, b) {
-    r /= 255, g /= 255, b /= 255;
     let y = 0.299 * r + 0.587 * g + 0.114 * b;
-    let cb = -0.168736 * r - 0.331264 * g + 0.5 * b + 0.5;
-    let cr = 0.5 * r - 0.418688 * g - 0.081312 * b + 0.5;
+    let cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+    let cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
     return [y, cb, cr];
 }
