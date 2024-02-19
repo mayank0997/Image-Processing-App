@@ -4,7 +4,7 @@ var h = 120;    //height of image
 var gsImg;
 var rImg, bImg, gImg;
 var rSegImg, bSegImg, gSegImg;
-
+var hsvImg;
 
 function setup() {
     pixelDensity(1);
@@ -30,13 +30,20 @@ function setup() {
     gImg = createImage(capture.width, capture.height);
     bImg = createImage(capture.width, capture.height);
 
+    rImg.loadPixels();
+    gImg.loadPixels();
+    bImg.loadPixels();
+
     rSegImg = createImage(capture.width, capture.height);
     gSegImg = createImage(capture.width, capture.height);
     bSegImg = createImage(capture.width, capture.height);
 
-    rImg.loadPixels();
-    gImg.loadPixels();
-    bImg.loadPixels();
+    rSegImg.loadPixels();
+    gSegImg.loadPixels();
+    bSegImg.loadPixels();
+
+    hsvImg = createImage(capture.width, capture.height);
+    hsvImg.loadPixels();
 
     thresholdSliderRed = createSlider(0, 255, 110);
     thresholdSliderRed.position(25, 2 * h + 60);
@@ -44,27 +51,38 @@ function setup() {
     thresholdSliderGreen.position((capture.width) + 45, 2 * h + 60);
     thresholdSliderBlue = createSlider(0, 255, 110);
     thresholdSliderBlue.position(2 * (capture.width) + 65, 2 * h + 60);
-
-    rSegImg.loadPixels();
-    gSegImg.loadPixels();
-    bSegImg.loadPixels();
 }
 
 function draw() {
     background(100);
     image(capture, 20, 20);
     capture.loadPixels();
-    for (x = 0; x < capture.width; x++) {
-        for (y = 0; y < capture.height; y++) {
-            var index = (x + y * gsImg.width) * 4;
 
-            var r = capture.pixels[index + 0];
-            var g = capture.pixels[index + 1];
-            var b = capture.pixels[index + 2];
+    colorMode(HSB, 360, 100, 100); // Set color mode to HSB
+    for (let x = 0; x < capture.width; x++) {
+        for (let y = 0; y < capture.height; y++) {
+            let index = (x + y * gsImg.width) * 4;
+
+            let r = capture.pixels[index + 0];
+            let g = capture.pixels[index + 1];
+            let b = capture.pixels[index + 2];
 
             grayscaleFilterBright(index, r, g, b);
             separateChannels(index, r, g, b);
             imageSegmentation(index, r, g, b);
+
+            // Apply RGB to HSV conversion
+            let [h, s, v] = rgbToHsv(r, g, b);
+
+            /**
+             * For visualization, map H to red, S to green, V to blue. 
+             * An HSV heatmap is generated.
+             */
+
+            hsvImg.pixels[index] = h * 255; // Hue mapped to red channel
+            hsvImg.pixels[index + 1] = s * 255; // Saturation mapped to green
+            hsvImg.pixels[index + 2] = v * 255; // Value mapped to blue
+            hsvImg.pixels[index + 3] = 255; // Alpha
         }
     }
     gsImg.updatePixels();
@@ -74,6 +92,8 @@ function draw() {
     rImg.updatePixels();
     gImg.updatePixels();
     bImg.updatePixels();
+
+    hsvImg.updatePixels();
 
     image(rImg, 20, h + 40); // Red component
     image(gImg, (capture.width) + 40, h + 40); // Green component
@@ -91,6 +111,8 @@ function draw() {
     image(gSegImg, w + 40, 2 * h + 80);
     image(bSegImg, 2 * w + 60, 2 * h + 80);
 
+    image(capture, 20, 3 * h + 100);
+    image(hsvImg, w + 40, 3 * h + 100);
 }
 
 function grayscaleFilterBright(index, r, g, b) {
@@ -153,4 +175,43 @@ function imageSegmentation(index, r, g, b) {
     }
     bSegImg.pixels[index + 3] = 255;
 
+}
+
+
+// RGB to HSV conversion
+function rgbToHsv(r, g, b) {
+    //Normalize rgb values
+    r /= 255, g /= 255, b /= 255;
+    //max and min values from the rgb
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, v = max;
+
+    var d = max - min;
+    s = max == 0 ? 0 : d / max;
+
+    if (d == 0) {
+        h = 0; // achromatic
+    } else {
+        let rPrime = (max - r) / d;
+        let gPrime = (max - g) / d;
+        let bPrime = (max - b) / d;
+
+        if (r === max) h = (g === min ? 5 + bPrime : 1 - gPrime);
+        else if (g === max) h = (b === min ? 1 + rPrime : 3 - bPrime);
+        else if (b === max) h = (r === min ? 3 + gPrime : 5 - rPrime);
+
+        //normalizing h
+        h /= 6;
+    }
+    return [h, s, v];
+}
+
+
+// RGB to YCbCr conversion
+function rgbToYCbCr(r, g, b) {
+    r /= 255, g /= 255, b /= 255;
+    let y = 0.299 * r + 0.587 * g + 0.114 * b;
+    let cb = -0.168736 * r - 0.331264 * g + 0.5 * b + 0.5;
+    let cr = 0.5 * r - 0.418688 * g - 0.081312 * b + 0.5;
+    return [y, cb, cr];
 }
