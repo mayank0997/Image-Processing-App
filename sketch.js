@@ -12,11 +12,9 @@ var thresholdSliderRed, thresholdSliderGreen, thresholdSliderBlue;
 var hueThresholdSlider, satThresholdSlider, valThresholdSlider;
 var hsvSegmentedImg;
 
-/*
 function preload() {
     capture = loadImage("leaf.jpg");
 }
-*/
 
 function setup() {
     pixelDensity(1);
@@ -29,13 +27,15 @@ function setup() {
 
     background(100);
 
+    /*
     capture = createCapture(VIDEO);
     capture.size(w, h);
     capture.hide();
     capture.loadPixels();
+    */
 
-    //capture.resize(w, h);
-    //capture.loadPixels();
+    capture.resize(w, h);
+    capture.loadPixels();
 
     //grayscale image
     gsImg = createImage(capture.width, capture.height);
@@ -112,10 +112,9 @@ function draw() {
             hsvImg.pixels[index + 2] = v * 255; // Value mapped to blue
             hsvImg.pixels[index + 3] = 255; // Alpha
 
-            var gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
-            if (h <= hueThresholdSlider.value() && s * 100 <= satThresholdSlider.value() && v * 100 <= valThresholdSlider.value()) {
+            let gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
+            if (h * 360 <= hueThresholdSlider.value() && s * 100 <= satThresholdSlider.value() && v * 100 <= valThresholdSlider.value()) {
                 // If within threshold, paint the pixel with original colors
-
                 hsvSegmentedImg.pixels[index] = gray;
                 hsvSegmentedImg.pixels[index + 1] = gray;
                 hsvSegmentedImg.pixels[index + 2] = gray;
