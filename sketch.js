@@ -114,7 +114,7 @@ function draw() {
 
             let gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
             if (h * 360 <= hueThresholdSlider.value() && s * 100 <= satThresholdSlider.value() && v * 100 <= valThresholdSlider.value()) {
-                // If within threshold, paint the pixel with original colors
+                // If within threshold, paint the pixel with gray
                 hsvSegmentedImg.pixels[index] = gray;
                 hsvSegmentedImg.pixels[index + 1] = gray;
                 hsvSegmentedImg.pixels[index + 2] = gray;
