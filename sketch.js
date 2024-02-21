@@ -7,9 +7,16 @@ var rSegImg, bSegImg, gSegImg;
 var hsvImg;
 var yCbCrImg;
 
+var thresholdSliderRed, thresholdSliderGreen, thresholdSliderBlue;
+
+var hueThresholdSlider, satThresholdSlider, valThresholdSlider;
+var hsvSegmentedImg;
+
+/*
 function preload() {
     capture = loadImage("leaf.jpg");
 }
+*/
 
 function setup() {
     pixelDensity(1);
@@ -21,14 +28,14 @@ function setup() {
     }
 
     background(100);
-    /*
+
     capture = createCapture(VIDEO);
     capture.size(w, h);
     capture.hide();
     capture.loadPixels();
-    */
-    capture.resize(w, h);
-    capture.loadPixels();
+
+    //capture.resize(w, h);
+    //capture.loadPixels();
 
     //grayscale image
     gsImg = createImage(capture.width, capture.height);
@@ -57,12 +64,22 @@ function setup() {
     thresholdSliderRed = createSlider(0, 255, 110);
     thresholdSliderRed.position(25, 2 * h + 60);
     thresholdSliderGreen = createSlider(0, 255, 110);
-    thresholdSliderGreen.position((capture.width) + 45, 2 * h + 60);
+    thresholdSliderGreen.position(w + 45, 2 * h + 60);
     thresholdSliderBlue = createSlider(0, 255, 110);
-    thresholdSliderBlue.position(2 * (capture.width) + 65, 2 * h + 60);
+    thresholdSliderBlue.position(2 * w + 65, 2 * h + 60);
 
     yCbCrImg = createImage(capture.width, capture.height);
     yCbCrImg.loadPixels();
+
+    hsvSegmentedImg = createImage(capture.width, capture.height);
+    hsvSegmentedImg.loadPixels();
+
+    hueThresholdSlider = createSlider(0, 360, 180); // Hue threshold
+    hueThresholdSlider.position(w + 45, 4 * h + 110);
+    satThresholdSlider = createSlider(0, 100, 50);  // Saturation threshold
+    satThresholdSlider.position(w + 45, 4 * h + 130);
+    valThresholdSlider = createSlider(0, 100, 50);  // Brightness (Value) threshold
+    valThresholdSlider.position(w + 45, 4 * h + 150);
 }
 
 function draw() {
@@ -94,6 +111,21 @@ function draw() {
             hsvImg.pixels[index + 1] = s * 255; // Saturation mapped to green
             hsvImg.pixels[index + 2] = v * 255; // Value mapped to blue
             hsvImg.pixels[index + 3] = 255; // Alpha
+
+            var gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
+            if (h <= hueThresholdSlider.value() && s * 100 <= satThresholdSlider.value() && v * 100 <= valThresholdSlider.value()) {
+                // If within threshold, paint the pixel with original colors
+
+                hsvSegmentedImg.pixels[index] = gray;
+                hsvSegmentedImg.pixels[index + 1] = gray;
+                hsvSegmentedImg.pixels[index + 2] = gray;
+            } else {
+                // Else, make it black
+                hsvSegmentedImg.pixels[index] = 0;
+                hsvSegmentedImg.pixels[index + 1] = 0;
+                hsvSegmentedImg.pixels[index + 2] = 0;
+            }
+            hsvSegmentedImg.pixels[index + 3] = 255; // Alpha
 
             // Convert RGB to YCbCr
             let [yValue, cb, cr] = rgbToYCbCr(r, g, b);
@@ -135,6 +167,9 @@ function draw() {
     image(capture, 20, 3 * h + 100);
     image(hsvImg, w + 40, 3 * h + 100);
     image(yCbCrImg, 2 * w + 60, 3 * h + 100);
+
+    hsvSegmentedImg.updatePixels();
+    image(hsvSegmentedImg, w + 40, 4 * h + 170);
 }
 
 function grayscaleFilterBright(index, r, g, b) {
