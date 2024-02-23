@@ -1,6 +1,6 @@
 var capture = null;     //variable to store the capture of the video
-var w = 160;    //width of image
-var h = 120;    //height of image
+const w = 160;    //width of image
+const h = 120;    //height of image
 var gsImg;
 var rImg, bImg, gImg;
 var rSegImg, bSegImg, gSegImg;
@@ -12,9 +12,14 @@ var thresholdSliderRed, thresholdSliderGreen, thresholdSliderBlue;
 var hueThresholdSlider, satThresholdSlider, valThresholdSlider;
 var hsvSegmentedImg;
 
+var yThresholdSlider, cbThresholdSlider, crThresholdSlider;
+var yCbCrSegmentedImg;
+
+/*
 function preload() {
     capture = loadImage("leaf.jpg");
 }
+*/
 
 function setup() {
     pixelDensity(1);
@@ -27,38 +32,38 @@ function setup() {
 
     background(100);
 
-    /*
+
     capture = createCapture(VIDEO);
     capture.size(w, h);
     capture.hide();
     capture.loadPixels();
-    */
 
-    capture.resize(w, h);
-    capture.loadPixels();
+
+    //capture.resize(w, h);
+    //capture.loadPixels();
 
     //grayscale image
-    gsImg = createImage(capture.width, capture.height);
+    gsImg = createImage(w, h);
     gsImg.loadPixels();
 
     // Initialize component images to be the same size as the original
-    rImg = createImage(capture.width, capture.height);
-    gImg = createImage(capture.width, capture.height);
-    bImg = createImage(capture.width, capture.height);
+    rImg = createImage(w, h);
+    gImg = createImage(w, h);
+    bImg = createImage(w, h);
 
     rImg.loadPixels();
     gImg.loadPixels();
     bImg.loadPixels();
 
-    rSegImg = createImage(capture.width, capture.height);
-    gSegImg = createImage(capture.width, capture.height);
-    bSegImg = createImage(capture.width, capture.height);
+    rSegImg = createImage(w, h);
+    gSegImg = createImage(w, h);
+    bSegImg = createImage(w, h);
 
     rSegImg.loadPixels();
     gSegImg.loadPixels();
     bSegImg.loadPixels();
 
-    hsvImg = createImage(capture.width, capture.height);
+    hsvImg = createImage(w, h);
     hsvImg.loadPixels();
 
     thresholdSliderRed = createSlider(0, 255, 110);
@@ -68,10 +73,10 @@ function setup() {
     thresholdSliderBlue = createSlider(0, 255, 110);
     thresholdSliderBlue.position(2 * w + 65, 2 * h + 60);
 
-    yCbCrImg = createImage(capture.width, capture.height);
+    yCbCrImg = createImage(w, h);
     yCbCrImg.loadPixels();
 
-    hsvSegmentedImg = createImage(capture.width, capture.height);
+    hsvSegmentedImg = createImage(w, h);
     hsvSegmentedImg.loadPixels();
 
     hueThresholdSlider = createSlider(0, 360, 180); // Hue threshold
@@ -80,6 +85,16 @@ function setup() {
     satThresholdSlider.position(w + 45, 4 * h + 130);
     valThresholdSlider = createSlider(0, 100, 50);  // Brightness (Value) threshold
     valThresholdSlider.position(w + 45, 4 * h + 150);
+
+    yCbCrSegmentedImg = createImage(w, h);
+    yCbCrSegmentedImg.loadPixels();
+
+    yThresholdSlider = createSlider(0, 255, 150);
+    yThresholdSlider.position(2 * w + 65, 4 * h + 110)
+    cbThresholdSlider = createSlider(0, 255, 150);
+    cbThresholdSlider.position(2 * w + 65, 4 * h + 130);
+    crThresholdSlider = createSlider(0, 255, 150);
+    crThresholdSlider.position(2 * w + 65, 4 * h + 150);
 }
 
 function draw() {
@@ -124,7 +139,7 @@ function draw() {
                 hsvSegmentedImg.pixels[index + 1] = 0;
                 hsvSegmentedImg.pixels[index + 2] = 0;
             }
-            hsvSegmentedImg.pixels[index + 3] = 255; // Alpha
+            hsvSegmentedImg.pixels[index + 3] = 255; // Alpha            
 
             // Convert RGB to YCbCr
             let [yValue, cb, cr] = rgbToYCbCr(r, g, b);
@@ -134,6 +149,20 @@ function draw() {
             yCbCrImg.pixels[index + 1] = cb; // Cb mapped to green channel
             yCbCrImg.pixels[index + 2] = cr; // Cr mapped to blue channel
             yCbCrImg.pixels[index + 3] = 255; // Alpha
+
+            //console.log(yValue + " : " + yThresholdSlider.value());
+            if (yValue <= yThresholdSlider.value() && cb <= cbThresholdSlider.value() && cr <= crThresholdSlider.value()) {
+                // If within threshold, paint the pixel with gray
+                yCbCrSegmentedImg.pixels[index] = gray;
+                yCbCrSegmentedImg.pixels[index + 1] = gray;
+                yCbCrSegmentedImg.pixels[index + 2] = gray;
+            } else {
+                // Else, make it black
+                yCbCrSegmentedImg.pixels[index] = 0;
+                yCbCrSegmentedImg.pixels[index + 1] = 0;
+                yCbCrSegmentedImg.pixels[index + 2] = 0;
+            }
+            yCbCrSegmentedImg.pixels[index + 3] = 255; // Alpha
         }
     }
     gsImg.updatePixels();
@@ -169,6 +198,9 @@ function draw() {
 
     hsvSegmentedImg.updatePixels();
     image(hsvSegmentedImg, w + 40, 4 * h + 170);
+
+    yCbCrSegmentedImg.updatePixels();
+    image(yCbCrSegmentedImg, 2 * w + 60, 4 * h + 170);
 }
 
 function grayscaleFilterBright(index, r, g, b) {
