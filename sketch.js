@@ -15,6 +15,10 @@ var hsvSegmentedImg;
 var yThresholdSlider, cbThresholdSlider, crThresholdSlider;
 var yCbCrSegmentedImg;
 
+var faceCapture;
+var faceapi;
+var detections = [];
+
 /*
 function preload() {
     capture = loadImage("leaf.jpg");
@@ -38,6 +42,15 @@ function setup() {
     capture.hide();
     capture.loadPixels();
 
+
+    faceCapture = createCapture(VIDEO);
+    faceCapture.size(w, h);
+    faceCapture.hide();
+    faceCapture.loadPixels();
+
+    // Initialize the face detection method
+    const faceOptions = { withLandmarks: true, withDescriptors: false };
+    faceapi = ml5.faceApi(faceCapture, faceOptions, modelReady);
 
     //capture.resize(w, h);
     //capture.loadPixels();
@@ -97,10 +110,43 @@ function setup() {
     crThresholdSlider.position(2 * w + 65, 4 * h + 150);
 }
 
+// Callback function when the model is loaded
+function modelReady() {
+    console.log('Face API Model Ready!');
+    faceapi.detect(gotResults);
+}
+
+// Callback function to get results
+function gotResults(err, result) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+    detections = result;
+    faceapi.detect(gotResults); // Call function to continuously detect faces
+}
+
+// Function to draw faces
+function drawFaces(detections) {
+    push();
+    translate(20, 4 * h + 170);
+    console.log("Drawing faces");
+    for (let i = 0; i < detections.length; i++) {
+        const alignedRect = detections[i].alignedRect;
+        const { _x, _y, _width, _height } = alignedRect._box;
+        noFill();
+        stroke(255, 0, 0);
+        strokeWeight(2);
+        rect(_x, _y, _width, _height);
+    }
+    pop();
+}
+
 function draw() {
     background(100);
     image(capture, 20, 20);
     capture.loadPixels();
+    faceCapture.loadPixels();
 
     for (let x = 0; x < capture.width; x++) {
         for (let y = 0; y < capture.height; y++) {
@@ -201,6 +247,14 @@ function draw() {
 
     yCbCrSegmentedImg.updatePixels();
     image(yCbCrSegmentedImg, 2 * w + 60, 4 * h + 170);
+
+    faceCapture.updatePixels();
+    image(faceCapture, 20, 4 * h + 170);
+
+    // Draw detections on the face capture image
+    if (detections) {
+        drawFaces(detections);
+    }
 }
 
 function grayscaleFilterBright(index, r, g, b) {
