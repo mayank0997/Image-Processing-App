@@ -132,12 +132,15 @@ function drawFaces(detections) {
     translate(20, 4 * h + 170);
     console.log("Drawing faces");
     for (let i = 0; i < detections.length; i++) {
-        const alignedRect = detections[i].alignedRect;
-        const { _x, _y, _width, _height } = alignedRect._box;
+        console.log(detections[i]);
+        let x = detections[i].alignedRect._box._x;
+        let y = detections[i].alignedRect._box._y;
+        let width = detections[i].alignedRect._box._width;
+        let height = detections[i].alignedRect._box._height;
         noFill();
         stroke(255, 0, 0);
         strokeWeight(2);
-        rect(_x, _y, _width, _height);
+        rect(x, y, width, height);
     }
     pop();
 }
