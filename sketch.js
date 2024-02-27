@@ -141,6 +141,30 @@ function drawFaces(detections) {
         stroke(255, 0, 0);
         strokeWeight(2);
         rect(x, y, width, height);
+        // Extract the face area from the video
+        let faceImg = faceCapture.get(x, y, width, height);
+        faceImg.loadPixels();
+
+        let faceW = Math.floor(faceImg.width);
+        let faceH = Math.floor(faceImg.height);
+        // Convert the face area to grayscale
+        for (let j = 0; j < faceW; j++) {
+            for (let k = 0; k < faceH; k++) {
+                let index = (j + k * faceW) * 4;
+                let r = faceImg.pixels[index];
+                let g = faceImg.pixels[index + 1];
+                let b = faceImg.pixels[index + 2];
+                // A simple average for grayscale conversion
+                let gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
+                faceImg.pixels[index] = gray;
+                faceImg.pixels[index + 1] = gray;
+                faceImg.pixels[index + 2] = gray;
+            }
+        }
+        faceImg.updatePixels();
+
+        // Draw the grayscale face area back onto the canvas
+        image(faceImg, x, y);
     }
     pop();
 }
