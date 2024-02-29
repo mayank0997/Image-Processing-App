@@ -82,6 +82,49 @@ function applyHSVtoFace(faceImg, faceW, faceH) {
     }
 }
 
+function applyPixelation(faceImg, faceW, faceH, blockSize = 5) {
+    // blockSize defines the size of each block
+    faceImg.loadPixels();
+    for (let x = 0; x < faceW; x += blockSize) {
+        for (let y = 0; y < faceH; y += blockSize) {
+            let totalR = 0, totalG = 0, totalB = 0;
+            let count = 0;
+
+            // Sum up all pixel values in the block
+            for (let dx = 0; dx < blockSize; dx++) {
+                for (let dy = 0; dy < blockSize; dy++) {
+                    if (x + dx < faceW && y + dy < faceH) { // Check boundary
+                        let idx = ((y + dy) * faceW + (x + dx)) * 4;
+                        totalR += faceImg.pixels[idx];
+                        totalG += faceImg.pixels[idx + 1];
+                        totalB += faceImg.pixels[idx + 2];
+                        count++;
+                    }
+                }
+            }
+
+            // Calculate average color of the block
+            let avgR = totalR / count;
+            let avgG = totalG / count;
+            let avgB = totalB / count;
+
+            // Set all pixels in the block to the average color
+            for (let dx = 0; dx < blockSize; dx++) {
+                for (let dy = 0; dy < blockSize; dy++) {
+                    if (x + dx < faceW && y + dy < faceH) {
+                        let idx = ((y + dy) * faceW + (x + dx)) * 4;
+                        faceImg.pixels[idx] = avgR;
+                        faceImg.pixels[idx + 1] = avgG;
+                        faceImg.pixels[idx + 2] = avgB;
+                    }
+                }
+            }
+        }
+    }
+    faceImg.updatePixels();
+}
+
+
 // Function to draw faces
 function drawFaces(detections) {
     push();
@@ -115,7 +158,7 @@ function drawFaces(detections) {
                 applyHSVtoFace(faceImg, faceW, faceH);
                 break;
             case 'PIXELATE':
-
+                applyPixelation(faceImg, faceW, faceH);
                 break;
         }
         faceImg.updatePixels();
