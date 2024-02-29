@@ -19,6 +19,8 @@ var faceCapture;
 var faceapi;
 var detections = [];
 
+var currentMode;
+
 /*
 function preload() {
     capture = loadImage("leaf.jpg");
@@ -108,6 +110,8 @@ function setup() {
     cbThresholdSlider.position(2 * w + 65, 4 * h + 130);
     crThresholdSlider = createSlider(0, 255, 150);
     crThresholdSlider.position(2 * w + 65, 4 * h + 150);
+
+    currentMode = 'NORMAL';
 }
 
 // Callback function when the model is loaded
@@ -126,6 +130,68 @@ function gotResults(err, result) {
     faceapi.detect(gotResults); // Call function to continuously detect faces
 }
 
+function drawFaceRect(x, y, width, height) {
+    noFill();
+    stroke(255, 0, 0);
+    strokeWeight(2);
+    rect(x, y, width, height);
+}
+
+function applyGrayscale(faceImg, faceW, faceH) {
+    // Convert the face area to grayscale
+    for (let j = 0; j < faceW; j++) {
+        for (let k = 0; k < faceH; k++) {
+            let index = (j + k * faceW) * 4;
+            let r = faceImg.pixels[index];
+            let g = faceImg.pixels[index + 1];
+            let b = faceImg.pixels[index + 2];
+            // A simple average for grayscale conversion
+            let gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
+            faceImg.pixels[index] = gray;
+            faceImg.pixels[index + 1] = gray;
+            faceImg.pixels[index + 2] = gray;
+        }
+    }
+}
+
+function applyGaussianBlur(faceImg, faceW, faceH) {
+    let kernel = [
+        [1 / 16, 1 / 8, 1 / 16],
+        [1 / 8, 1 / 4, 1 / 8],
+        [1 / 16, 1 / 8, 1 / 16]
+    ];
+    let kernelSize = 3;
+    let imgCopy = faceImg.get(); // Create a copy of the image to hold the original pixels
+    imgCopy.loadPixels();
+    faceImg.loadPixels();
+
+    for (let x = 0; x < faceW; x++) {
+        for (let y = 0; y < faceH; y++) {
+            let sumR = 0, sumG = 0, sumB = 0;
+            // Apply the kernel to each pixel and its neighbors
+            for (let ky = -1; ky <= 1; ky++) {
+                for (let kx = -1; kx <= 1; kx++) {
+                    let posX = x + kx;
+                    let posY = y + ky;
+                    // Ensure we don't read beyond the image borders
+                    if (posX >= 0 && posX < faceW && posY >= 0 && posY < faceH) {
+                        let idx = ((posY * faceW) + posX) * 4;
+                        let weight = kernel[ky + 1][kx + 1];
+                        sumR += imgCopy.pixels[idx] * weight;
+                        sumG += imgCopy.pixels[idx + 1] * weight;
+                        sumB += imgCopy.pixels[idx + 2] * weight;
+                    }
+                }
+            }
+            let index = (y * faceW + x) * 4;
+            faceImg.pixels[index] = sumR;
+            faceImg.pixels[index + 1] = sumG;
+            faceImg.pixels[index + 2] = sumB;
+        }
+    }
+}
+
+
 // Function to draw faces
 function drawFaces(detections) {
     push();
@@ -137,32 +203,32 @@ function drawFaces(detections) {
         let y = detections[i].alignedRect._box._y;
         let width = detections[i].alignedRect._box._width;
         let height = detections[i].alignedRect._box._height;
-        noFill();
-        stroke(255, 0, 0);
-        strokeWeight(2);
-        rect(x, y, width, height);
         // Extract the face area from the video
         let faceImg = faceCapture.get(x, y, width, height);
         faceImg.loadPixels();
 
         let faceW = Math.floor(faceImg.width);
         let faceH = Math.floor(faceImg.height);
-        // Convert the face area to grayscale
-        for (let j = 0; j < faceW; j++) {
-            for (let k = 0; k < faceH; k++) {
-                let index = (j + k * faceW) * 4;
-                let r = faceImg.pixels[index];
-                let g = faceImg.pixels[index + 1];
-                let b = faceImg.pixels[index + 2];
-                // A simple average for grayscale conversion
-                let gray = r * 0.299 + g * 0.587 + b * 0.114; // LUMA ratios
-                faceImg.pixels[index] = gray;
-                faceImg.pixels[index + 1] = gray;
-                faceImg.pixels[index + 2] = gray;
-            }
+
+        switch (currentMode) {
+            case 'NORMAL':
+                // Just draw the detected face area
+                drawFaceRect(x, y, width, height);
+                break;
+            case 'GRAYSCALE':
+                applyGrayscale(faceImg, faceW, faceH);
+                break;
+            case 'BLUR':
+                applyGaussianBlur(faceImg, faceW, faceH);
+                break;
+            case 'COLOR_CONVERSION':
+
+                break;
+            case 'PIXELATE':
+
+                break;
         }
         faceImg.updatePixels();
-
         // Draw the grayscale face area back onto the canvas
         image(faceImg, x, y);
     }
@@ -387,3 +453,19 @@ function rgbToYCbCr(r, g, b) {
     let cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
     return [y, cb, cr];
 }
+
+
+function keyPressed() {
+    if (key === '1') {
+        currentMode = 'NORMAL';
+    } else if (key === '2') {
+        currentMode = 'GRAYSCALE';
+    } else if (key === '3') {
+        currentMode = 'BLUR';
+    } else if (key === '4') {
+        currentMode = 'COLOR_CONVERSION';
+    } else if (key === '5') {
+        currentMode = 'PIXELATE';
+    }
+}
+
