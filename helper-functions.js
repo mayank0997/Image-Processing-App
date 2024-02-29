@@ -5,7 +5,7 @@ function drawFaceRect(x, y, width, height) {
     rect(x, y, width, height);
 }
 
-function applyGrayscale(faceImg, faceW, faceH) {
+function applyGrayscaletoFace(faceImg, faceW, faceH) {
     // Convert the face area to grayscale
     for (let j = 0; j < faceW; j++) {
         for (let k = 0; k < faceH; k++) {
@@ -63,6 +63,25 @@ function applyGaussianBlur(faceImg, faceW, faceH) {
 
 }
 
+function applyHSVtoFace(faceImg, faceW, faceH) {
+    for (let j = 0; j < faceW; j++) {
+        for (let k = 0; k < faceH; k++) {
+            let index = (j + k * faceW) * 4;
+            let r = faceImg.pixels[index];
+            let g = faceImg.pixels[index + 1];
+            let b = faceImg.pixels[index + 2];
+
+            // Apply RGB to HSV conversion
+            let [h, s, v] = rgbToHsv(r, g, b);
+
+            faceImg.pixels[index] = h * 255; // Hue mapped to red channel
+            faceImg.pixels[index + 1] = s * 255; // Saturation mapped to green
+            faceImg.pixels[index + 2] = v * 255; // Value mapped to blue
+            faceImg.pixels[index + 3] = 255; // Alpha
+        }
+    }
+}
+
 // Function to draw faces
 function drawFaces(detections) {
     push();
@@ -87,13 +106,13 @@ function drawFaces(detections) {
                 drawFaceRect(x, y, width, height);
                 break;
             case 'GRAYSCALE':
-                applyGrayscale(faceImg, faceW, faceH);
+                applyGrayscaletoFace(faceImg, faceW, faceH);
                 break;
             case 'BLUR':
                 applyGaussianBlur(faceImg, faceW, faceH);
                 break;
             case 'COLOR_CONVERSION':
-
+                applyHSVtoFace(faceImg, faceW, faceH);
                 break;
             case 'PIXELATE':
 
