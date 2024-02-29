@@ -156,11 +156,13 @@ function applyGrayscale(faceImg, faceW, faceH) {
 
 function applyGaussianBlur(faceImg, faceW, faceH) {
     let kernel = [
-        [1 / 16, 1 / 8, 1 / 16],
-        [1 / 8, 1 / 4, 1 / 8],
-        [1 / 16, 1 / 8, 1 / 16]
+        [1 / 256, 4 / 256, 6 / 256, 4 / 256, 1 / 256],
+        [4 / 256, 16 / 256, 24 / 256, 16 / 256, 4 / 256],
+        [6 / 256, 24 / 256, 36 / 256, 24 / 256, 6 / 256],
+        [4 / 256, 16 / 256, 24 / 256, 16 / 256, 4 / 256],
+        [1 / 256, 4 / 256, 6 / 256, 4 / 256, 1 / 256]
     ];
-    let kernelSize = 3;
+
     let imgCopy = faceImg.get(); // Create a copy of the image to hold the original pixels
     imgCopy.loadPixels();
     faceImg.loadPixels();
@@ -169,14 +171,15 @@ function applyGaussianBlur(faceImg, faceW, faceH) {
         for (let y = 0; y < faceH; y++) {
             let sumR = 0, sumG = 0, sumB = 0;
             // Apply the kernel to each pixel and its neighbors
-            for (let ky = -1; ky <= 1; ky++) {
-                for (let kx = -1; kx <= 1; kx++) {
+            for (let ky = -2; ky <= 2; ky++) {
+                for (let kx = -2; kx <= 2; kx++) {
                     let posX = x + kx;
                     let posY = y + ky;
                     // Ensure we don't read beyond the image borders
                     if (posX >= 0 && posX < faceW && posY >= 0 && posY < faceH) {
                         let idx = ((posY * faceW) + posX) * 4;
-                        let weight = kernel[ky + 1][kx + 1];
+                        // Adjusted index for a 5x5 kernel
+                        let weight = kernel[ky + 2][kx + 2]; // Notice the change from +1 to +2
                         sumR += imgCopy.pixels[idx] * weight;
                         sumG += imgCopy.pixels[idx + 1] * weight;
                         sumB += imgCopy.pixels[idx + 2] * weight;
@@ -189,6 +192,7 @@ function applyGaussianBlur(faceImg, faceW, faceH) {
             faceImg.pixels[index + 2] = sumB;
         }
     }
+
 }
 
 
