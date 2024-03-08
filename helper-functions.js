@@ -247,9 +247,9 @@ function rgbToHsv(r, g, b) {
         let gPrime = (max - g) / d;
         let bPrime = (max - b) / d;
 
-        if (r === max) h = (g === min ? 5 + bPrime : 1 - gPrime);
-        else if (g === max) h = (b === min ? 1 + rPrime : 3 - bPrime);
-        else if (b === max) h = (r === min ? 3 + gPrime : 5 - rPrime);
+        if (r == max) h = (g == min ? 5 + bPrime : 1 - gPrime);
+        else if (g == max) h = (b == min ? 1 + rPrime : 3 - bPrime);
+        else if (b == max) h = (r == min ? 3 + gPrime : 5 - rPrime);
 
         //normalizing h
         h /= 6;
