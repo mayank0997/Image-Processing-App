@@ -129,9 +129,7 @@ function applyPixelation(faceImg, faceW, faceH, blockSize = 5) {
 function drawFaces(detections) {
     push();
     translate(20, 4 * h + 170);
-    console.log("Drawing faces");
     for (let i = 0; i < detections.length; i++) {
-        console.log(detections[i]);
         let x = detections[i].alignedRect._box._x;
         let y = detections[i].alignedRect._box._y;
         let width = detections[i].alignedRect._box._width;

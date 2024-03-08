@@ -21,11 +21,7 @@ var detections = [];
 
 var currentMode;
 
-/*
-function preload() {
-    capture = loadImage("leaf.jpg");
-}
-*/
+var picture = null;
 
 function setup() {
     pixelDensity(1);
@@ -38,12 +34,15 @@ function setup() {
 
     background(100);
 
+    // capture = createCapture(VIDEO);
+    // capture.size(w, h);
+    // capture.hide();
+    // capture.loadPixels();
 
-    capture = createCapture(VIDEO);
-    capture.size(w, h);
-    capture.hide();
-    capture.loadPixels();
-
+    picture = createCapture(VIDEO);
+    picture.size(w, h);
+    picture.hide();
+    picture.loadPixels();
 
     faceCapture = createCapture(VIDEO);
     faceCapture.size(w, h);
@@ -111,6 +110,30 @@ function setup() {
     crThresholdSlider = createSlider(0, 255, 150);
     crThresholdSlider.position(2 * w + 65, 4 * h + 150);
 
+    // Button for capturing webcam image
+    captureButton = createButton('Capture Webcam Image');
+    captureButton.mousePressed(() => {
+        let name = prompt('Enter a name for the image:', 'captured_image');
+        let pic = createImage(w, h);
+        pic = picture.get();
+
+        if (name) {
+            save(pic, `${name}.png`);
+        }
+    });
+    captureButton.position(3 * w + 80, 40);
+
+    // File input for uploading images
+    fileInput = createFileInput(file => {
+        if (file.type === 'image') {
+            // Use loadImage() to read the uploaded file
+            loadImage(file.data, img => {
+                capture = img;
+                capture.resize(w, h);
+            });
+        }
+    });
+    fileInput.position(3 * w + 80, 60);
     currentMode = 'NORMAL';
 }
 
@@ -132,9 +155,14 @@ function gotResults(err, result) {
 
 
 function draw() {
+
+    if (capture == null)
+        capture = picture;
+
     background(100);
     image(capture, 20, 20);
     capture.loadPixels();
+    picture.loadPixels();
     faceCapture.loadPixels();
 
     for (let x = 0; x < capture.width; x++) {
@@ -203,6 +231,8 @@ function draw() {
     gsImg.updatePixels();
     image(gsImg, w + 40, 20);
 
+    image(picture, 2 * w + 60, 20);
+
     // Update pixel data for component images
     rImg.updatePixels();
     gImg.updatePixels();
@@ -227,7 +257,7 @@ function draw() {
     hsvImg.updatePixels();
     yCbCrImg.updatePixels();
 
-    image(capture, 20, 3 * h + 100);
+    image(picture, 20, 3 * h + 100);
     image(hsvImg, w + 40, 3 * h + 100);
     image(yCbCrImg, 2 * w + 60, 3 * h + 100);
 
