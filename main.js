@@ -1,3 +1,17 @@
+/**
+In this final coursework project, I implemented all the necessary requirements in a grid according to the positions specified in the instructions and added my extensions at the bottom. I am using buttons to capture and load images. Until an image has been loaded, the live webcam feed is used for task 4 through task 10. 
+
+An image can be loaded from the disk and then the a grayscale version of that image is displayed which is 20% brighter. Then the three images are displayed which are obtained by splitting the image into three colour channels. Then the segmented images for each channel are displayed. A slider for each channel allows for the threshold to be manipulated. I have noticed that the segmentation for each channel can vary quite a bit depending on the image being used. If there are massive differences in the levels of red, green and blue values, the segmented images can be quite different. 
+
+The original webcam image is displayed again and then the colour converted images are displayed. I implemented the HSV and YCbCr conversions. I used the algorithm for HSV as specified in the resource but I used an algorithm from Wikipedia for YCbCr as it was easier to implement and gave me the result as shown in the example in assignment for the leaf picture. As far as segmenting the HSV and YCbCr images is concerned, I used three sliders for three different values for segmentation. Three sliders for hue, saturation and brightness and another three sliders for luminance(Y), blue-difference(Cb) and red-difference(Cr). The usage of three sliders allowed me to achieve better segmentation than using a single slider. 
+
+The segmentation of colour space converted images allows for a different kind of segmentation than segmenting the colour channel images. I felt like the segmentation of colour space converted images allowed me to isolate specific objects or specific parts of the image with more ease. 
+
+For face detection, I used the face api from ml5. The ml5 library was about 300 MB so I included a link to the library in the index.html file instead of downloading as it would make the submission file very large. Once the face had been detected, I used the same logic as other parts of the program for grayscale conversion and I converted the face to HSV for the colour conversion part. For the blurring, I implemented the gaussian blur as shown in the lecture videos the course. For pixelation, I followed the instructions as specified but I did not use the “get” and “set” methods. 
+
+The extension displays a ripple effect on the captured image. The image needs to be clicked and the ripples originate from that point. The ripples can be stopped using the reset button. I tried to create a ripple effect using a few sine waves but it does not work as good as I thought it would. I should have planned and researched the extension part further.
+ */
+
 var capture = null;     //variable to store the capture of the video
 const w = 160;    //width of image
 const h = 120;    //height of image
