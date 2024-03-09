@@ -178,7 +178,6 @@ function setup() {
         }
     });
     fileInput.position(3 * w + 80, 60);
-    currentMode = 'NORMAL';
 }
 
 // Callback function when the model is loaded
@@ -264,7 +263,7 @@ function draw() {
             yCbCrImg.pixels[index + 2] = cr; // Cr mapped to blue channel
             yCbCrImg.pixels[index + 3] = 255; // Alpha
 
-            //console.log(yValue + " : " + yThresholdSlider.value());
+            console.log(yValue + " : " + yThresholdSlider.value());
             if (yValue <= yThresholdSlider.value() && cb <= cbThresholdSlider.value() && cr <= crThresholdSlider.value()) {
                 // If within threshold, paint the pixel with gray
                 yCbCrSegmentedImg.pixels[index] = gray;
