@@ -271,3 +271,11 @@ function rgbToYCbCr(r, g, b) {
     let cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
     return [y, cb, cr];
 }
+
+
+// Function to reset the ripple effect
+function resetRipple() {
+    ripple = false; // Set ripple flag to false
+    rippleCenterX = 0; // Reset ripple center X
+    rippleCenterY = 0; // Reset ripple center Y
+}

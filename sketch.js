@@ -19,9 +19,17 @@ var faceCapture;
 var faceapi;
 var detections = [];
 
+var rippleImage; // Image for ripple effect
+var resetRippleButton;
+
 var currentMode;
 
 var picture = null;
+
+// Global variables for ripple center and state
+let rippleCenterX = 0;
+let rippleCenterY = 0;
+let ripple = false;
 
 function setup() {
     pixelDensity(1);
@@ -110,6 +118,14 @@ function setup() {
     crThresholdSlider = createSlider(0, 255, 150);
     crThresholdSlider.position(2 * w + 65, 4 * h + 150);
 
+    rippleImage = createImage(w, h);
+    rippleImage.loadPixels();
+
+    // Create a button to reset the ripple effect
+    resetRippleButton = createButton('Reset Ripple');
+    resetRippleButton.position(2 * w + 60, 5 * h + 200);
+    resetRippleButton.mousePressed(resetRipple);
+
     // Button for capturing webcam image
     captureButton = createButton('Capture Webcam Image');
     captureButton.mousePressed(() => {
@@ -153,6 +169,14 @@ function gotResults(err, result) {
     faceapi.detect(gotResults); // Call function to continuously detect faces
 }
 
+function mousePressed() {
+    // Check if the mouse click is within the bounds of the rippleImage
+    if (mouseX > w + 40 && mouseX < w + 40 + w && mouseY > 5 * h + 190 && mouseY < 5 * h + 190 + h) {
+        rippleCenterX = mouseX - (w + 40);
+        rippleCenterY = mouseY - (5 * h + 190);
+        ripple = true; // Set the flag to true to update the ripple effect
+    }
+}
 
 function draw() {
 
@@ -167,7 +191,7 @@ function draw() {
 
     for (let x = 0; x < capture.width; x++) {
         for (let y = 0; y < capture.height; y++) {
-            let index = (x + y * gsImg.width) * 4;
+            let index = (x + y * capture.width) * 4;
 
             let r = capture.pixels[index + 0];
             let g = capture.pixels[index + 1];
@@ -226,6 +250,31 @@ function draw() {
                 yCbCrSegmentedImg.pixels[index + 2] = 0;
             }
             yCbCrSegmentedImg.pixels[index + 3] = 255; // Alpha
+
+            if (ripple) {
+                let distance = dist(x, y, rippleCenterX, rippleCenterY);
+                // Superposition of waves
+                let offset = sin(distance * 0.1 - millis() * 0.005) * 15;
+                offset += sin(distance * 0.15 - millis() * 0.007) * 7.5;
+                offset += sin(distance * 0.05 - millis() * 0.003) * 2.5;
+                // Ensure offset does not exceed image bounds
+                offset = constrain(offset, -25, 25);
+
+                let newX = constrain(x + offset, 0, capture.width - 1);
+                let newY = constrain(y + offset, 0, capture.height - 1);
+                let newIndex = (floor(newX) + floor(newY) * capture.width) * 4;
+
+                rippleImage.pixels[index] = capture.pixels[newIndex];
+                rippleImage.pixels[index + 1] = capture.pixels[newIndex + 1];
+                rippleImage.pixels[index + 2] = capture.pixels[newIndex + 2];
+                rippleImage.pixels[index + 3] = 255;
+            }
+            else {
+                rippleImage.pixels[index] = capture.pixels[index];
+                rippleImage.pixels[index + 1] = capture.pixels[index + 1];
+                rippleImage.pixels[index + 2] = capture.pixels[index + 2];
+                rippleImage.pixels[index + 3] = capture.pixels[index + 3]; // Alpha remains constant  
+            }
         }
     }
     gsImg.updatePixels();
@@ -274,6 +323,10 @@ function draw() {
     if (detections) {
         drawFaces(detections);
     }
+
+    rippleImage.updatePixels();
+    image(rippleImage, w + 40, 5 * h + 190);
+    //ripple = false;
 }
 
 function keyPressed() {
