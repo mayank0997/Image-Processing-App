@@ -32,6 +32,8 @@ let rippleCenterY = 0;
 let ripple = false;
 
 function setup() {
+
+    textSize(10);
     pixelDensity(1);
     createCanvas(1000, 1000);
 
@@ -56,6 +58,13 @@ function setup() {
     faceCapture.size(w, h);
     faceCapture.hide();
     faceCapture.loadPixels();
+
+    text('number key - mode', 20, 5 * h + 190);
+    text('1 - Face Detection', 20, 5 * h + 210);
+    text('2 - Grayscale Face', 20, 5 * h + 230);
+    text('3 - Blur Face', 20, 5 * h + 250);
+    text('4 - HSV Face', 20, 5 * h + 270);
+    text('4 - Pixelate Face', 20, 5 * h + 290);
 
     // Initialize the face detection method
     const faceOptions = { withLandmarks: true, withDescriptors: false };
@@ -89,11 +98,17 @@ function setup() {
     hsvImg.loadPixels();
 
     thresholdSliderRed = createSlider(0, 255, 110);
-    thresholdSliderRed.position(25, 2 * h + 60);
+    thresholdSliderRed.position(45, 2 * h + 60);
+    thresholdSliderRed.size(100);
+    text('R', 25, 2 * h + 65);
     thresholdSliderGreen = createSlider(0, 255, 110);
-    thresholdSliderGreen.position(w + 45, 2 * h + 60);
+    thresholdSliderGreen.position(w + 65, 2 * h + 60);
+    thresholdSliderGreen.size(100);
+    text('G', w + 45, 2 * h + 65);
     thresholdSliderBlue = createSlider(0, 255, 110);
-    thresholdSliderBlue.position(2 * w + 65, 2 * h + 60);
+    thresholdSliderBlue.position(2 * w + 85, 2 * h + 60);
+    thresholdSliderBlue.size(100);
+    text('B', 2 * w + 65, 2 * h + 65);
 
     yCbCrImg = createImage(w, h);
     yCbCrImg.loadPixels();
@@ -102,21 +117,34 @@ function setup() {
     hsvSegmentedImg.loadPixels();
 
     hueThresholdSlider = createSlider(0, 360, 180); // Hue threshold
-    hueThresholdSlider.position(w + 45, 4 * h + 110);
+    hueThresholdSlider.position(w + 70, 4 * h + 110);
+    hueThresholdSlider.size(100);
+    text('H', w + 50, 4 * h + 115);
     satThresholdSlider = createSlider(0, 100, 50);  // Saturation threshold
-    satThresholdSlider.position(w + 45, 4 * h + 130);
+    satThresholdSlider.position(w + 70, 4 * h + 130);
+    satThresholdSlider.size(100);
+    text('S', w + 50, 4 * h + 135);
     valThresholdSlider = createSlider(0, 100, 50);  // Brightness (Value) threshold
-    valThresholdSlider.position(w + 45, 4 * h + 150);
+    valThresholdSlider.position(w + 70, 4 * h + 150);
+    valThresholdSlider.size(100);
+    text('V', w + 50, 4 * h + 155);
+
 
     yCbCrSegmentedImg = createImage(w, h);
     yCbCrSegmentedImg.loadPixels();
 
     yThresholdSlider = createSlider(0, 255, 150);
-    yThresholdSlider.position(2 * w + 65, 4 * h + 110)
+    yThresholdSlider.position(2 * w + 90, 4 * h + 110)
+    yThresholdSlider.size(100);
+    text('Y', 2 * w + 65, 4 * h + 115);
     cbThresholdSlider = createSlider(0, 255, 150);
-    cbThresholdSlider.position(2 * w + 65, 4 * h + 130);
+    cbThresholdSlider.position(2 * w + 90, 4 * h + 130);
+    cbThresholdSlider.size(100);
+    text('Cb', 2 * w + 65, 4 * h + 135);
     crThresholdSlider = createSlider(0, 255, 150);
-    crThresholdSlider.position(2 * w + 65, 4 * h + 150);
+    crThresholdSlider.position(2 * w + 90, 4 * h + 150);
+    crThresholdSlider.size(100);
+    text('Cr', 2 * w + 65, 4 * h + 155);
 
     rippleImage = createImage(w, h);
     rippleImage.loadPixels();
@@ -183,7 +211,6 @@ function draw() {
     if (capture == null)
         capture = picture;
 
-    background(100);
     image(capture, 20, 20);
     capture.loadPixels();
     picture.loadPixels();
@@ -326,7 +353,6 @@ function draw() {
 
     rippleImage.updatePixels();
     image(rippleImage, w + 40, 5 * h + 190);
-    //ripple = false;
 }
 
 function keyPressed() {
