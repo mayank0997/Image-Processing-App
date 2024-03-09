@@ -278,4 +278,5 @@ function resetRipple() {
     ripple = false; // Set ripple flag to false
     rippleCenterX = 0; // Reset ripple center X
     rippleCenterY = 0; // Reset ripple center Y
+    console.log("Ripple reset");
 }

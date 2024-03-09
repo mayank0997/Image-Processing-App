@@ -178,6 +178,7 @@ function setup() {
         if (name) {
             save(pic, `${name}.png`);
         }
+        console.log("Image captured");
     });
     captureButton.position(3 * w + 80, 40);
 
@@ -190,6 +191,7 @@ function setup() {
                 capture.resize(w, h);
             });
         }
+        console.log("Image uploaded");
     });
     fileInput.position(3 * w + 80, 60);
 }
@@ -216,6 +218,7 @@ function mousePressed() {
         rippleCenterX = mouseX - (w + 40);
         rippleCenterY = mouseY - (5 * h + 190);
         ripple = true; // Set the flag to true to update the ripple effect
+        console.log("ripples created");
     }
 }
 
@@ -277,7 +280,6 @@ function draw() {
             yCbCrImg.pixels[index + 2] = cr; // Cr mapped to blue channel
             yCbCrImg.pixels[index + 3] = 255; // Alpha
 
-            console.log(yValue + " : " + yThresholdSlider.value());
             if (yValue <= yThresholdSlider.value() && cb <= cbThresholdSlider.value() && cr <= crThresholdSlider.value()) {
                 // If within threshold, paint the pixel with gray
                 yCbCrSegmentedImg.pixels[index] = gray;
@@ -367,14 +369,19 @@ function draw() {
 function keyPressed() {
     if (key === '1') {
         currentMode = 'NORMAL';
+        console.log("face detection");
     } else if (key === '2') {
         currentMode = 'GRAYSCALE';
+        console.log("grayscale face");
     } else if (key === '3') {
         currentMode = 'BLUR';
+        console.log("blur face");
     } else if (key === '4') {
         currentMode = 'COLOR_CONVERSION';
+        console.log("hsv face");
     } else if (key === '5') {
         currentMode = 'PIXELATE';
+        console.log("pixelated face");
     }
 }
 
