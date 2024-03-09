@@ -46,8 +46,10 @@ function applyGaussianBlur(faceImg, faceW, faceH) {
                     // Ensure we don't read beyond the image borders
                     if (posX >= 0 && posX < faceW && posY >= 0 && posY < faceH) {
                         let idx = ((posY * faceW) + posX) * 4;
-                        // Adjusted index for a 5x5 kernel
-                        let weight = kernel[ky + 2][kx + 2]; // Notice the change from +1 to +2
+
+                        idx = constrain(idx, 0, faceImg.pixels.length - 1);
+
+                        let weight = kernel[ky + 2][kx + 2];
                         sumR += imgCopy.pixels[idx] * weight;
                         sumG += imgCopy.pixels[idx + 1] * weight;
                         sumB += imgCopy.pixels[idx + 2] * weight;
