@@ -318,10 +318,6 @@ function draw() {
     image(gImg, (capture.width) + 40, h + 40); // Green component
     image(bImg, 2 * (capture.width) + 60, h + 40); // Blue component
 
-    text(thresholdSliderRed.value(), thresholdSliderRed.position().x + 125, thresholdSliderRed.position().y + 5);
-    text(thresholdSliderGreen.value(), thresholdSliderGreen.position().x + 125, thresholdSliderGreen.position().y + 5);
-    text(thresholdSliderBlue.value(), thresholdSliderBlue.position().x + 125, thresholdSliderBlue.position().y + 5);
-
     rSegImg.updatePixels();
     gSegImg.updatePixels();
     bSegImg.updatePixels();
