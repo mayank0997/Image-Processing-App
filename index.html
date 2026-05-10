@@ -1,16 +1,23 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GP Final</title>
+    <title>Image Processing App</title>
 
     <script src="./libraries/p5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ml5@latest/dist/ml5.min.js"></script>
-    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+
+    <!-- Pin ml5 to a version that still supports ml5.faceApi().
+         The latest ml5 build no longer exposes this older API. -->
+    <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+
     <script src="./libraries/face-api.js"></script>
-    <script src="helper-functions.js"></script>
-    <script src="main.js"></script>
+    <script src="./helper-functions.js"></script>
+    <script src="./main.js"></script>
 </head>
+
+<body>
+</body>
 
 </html>
